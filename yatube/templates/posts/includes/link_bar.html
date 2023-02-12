@@ -1,0 +1,10 @@
+<div class="card-footer">
+  {% if post.group %}   
+    <a href="{% url 'posts:group_list' post.group.slug %}" class="card-link">все записи группы</a>
+  {% endif %}
+  <a href="{% url 'posts:profile' post.author.username %}" class="card-link">все записи автора</a>
+  <a href="{% url 'posts:post_detail' post.id %}" class="card-link">подробная информация </a>
+  {% if post.author == request.user %}
+    <a href="{% url 'posts:post_edit' post.id %}" class="card-link">редактировать запись</a>
+  {% endif %}
+</div>
