@@ -226,16 +226,21 @@ class TestViews(TestCase):
         )
         self.assertNotEqual(following_set, start_set)
         self.auth.get(reverse('posts:profile_unfollow', args=(author_name,)))
-        unfollowing_set = set(        self.auth.get(reverse('posts:profile_follow', args=(author_name,)))
-
+        unfollowing_set = set(
             self.auth.get(reverse('posts:follow_index')).context['page_obj']
         )
         self.assertEqual(unfollowing_set, start_set)
 
     def test_new_post_in_follows(self):
+        author_name = self.user.username
         auth_1 = Client()
         auth_1.force_login(mixer.blend(User, username='Followed'))
-        self.auth_1.get(reverse('posts:profile_follow', args=(author_name,)))
+        auth_1.get(reverse('posts:profile_follow', args=(author_name,)))
         auth_2 = Client()
         auth_2.force_login(mixer.blend(User, username='UnFollowed'))
-        
+        post = mixer.blend(Post, author=self.user)
+        response_1 = auth_1.get(reverse('posts:follow_index'))
+        self.assertIn(post, response_1.context['page_obj'].object_list)
+        response_2 = auth_2.get(reverse('posts:follow_index'))
+        self.assertNotIn(post, response_2.context['page_obj'].object_list)
+        post.delete()
