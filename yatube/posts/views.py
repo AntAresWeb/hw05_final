@@ -33,14 +33,15 @@ def group_posts(request, slug):
 def profile(request, username):
     '''Контроллер страницы профиля автора (пользователя).'''
     author = get_object_or_404(User, username=username)
-    follow = Follow.objects.get(user=request.user, author=author)
-    following = follow is not None
     post_list = author.posts.all()
     context = {
         'author': author,
-        'following': following,
         'page_obj': get_page_of_list(request, post_list),
     }
+    if request.user.is_authenticated:
+        context['following'] = (
+            Follow.objects.filter(user=request.user, author=author).exists()
+        )
     return render(request, 'posts/profile.html', context)
 
 
@@ -71,7 +72,7 @@ def add_comment(request, post_id):
         comment.author = request.user
         comment.post = post
         comment.save()
-    return redirect('posts:post_detail', post_id=post_id) 
+    return redirect('posts:post_detail', post_id=post_id)
 
 
 @login_required

@@ -214,3 +214,28 @@ class TestViews(TestCase):
         response_cleared_cache = self.auth.get(reverse('posts:index'))
         self.assertHTMLNotEqual(
             response.content.decode(), response_cleared_cache.content.decode())
+
+    def test_following_for_auth_user(self):
+        author_name = self.user.username
+        start_set = set(
+            self.auth.get(reverse('posts:follow_index')).context['page_obj']
+        )
+        self.auth.get(reverse('posts:profile_follow', args=(author_name,)))
+        following_set = set(
+            self.auth.get(reverse('posts:follow_index')).context['page_obj']
+        )
+        self.assertNotEqual(following_set, start_set)
+        self.auth.get(reverse('posts:profile_unfollow', args=(author_name,)))
+        unfollowing_set = set(        self.auth.get(reverse('posts:profile_follow', args=(author_name,)))
+
+            self.auth.get(reverse('posts:follow_index')).context['page_obj']
+        )
+        self.assertEqual(unfollowing_set, start_set)
+
+    def test_new_post_in_follows(self):
+        auth_1 = Client()
+        auth_1.force_login(mixer.blend(User, username='Followed'))
+        self.auth_1.get(reverse('posts:profile_follow', args=(author_name,)))
+        auth_2 = Client()
+        auth_2.force_login(mixer.blend(User, username='UnFollowed'))
+        
