@@ -38,10 +38,10 @@ def profile(request, username):
         'author': author,
         'page_obj': get_page_of_list(request, post_list),
     }
-    if request.user.is_authenticated:
-        context['following'] = (
-            Follow.objects.filter(user=request.user, author=author).exists()
-        )
+    context['following'] = (
+        request.user.is_authenticated
+        and Follow.objects.filter(user=request.user, author=author).exists()
+    )
     return render(request, 'posts/profile.html', context)
 
 
@@ -147,7 +147,7 @@ def profile_follow(request, username):
 @login_required
 def profile_unfollow(request, username):
     author = get_object_or_404(User, username=username)
-    follow = Follow.objects.get(user=request.user, author=author)
-    if follow is not None:
-        follow.delete()
+    follows = Follow.objects.filter(user=request.user, author=author)
+    for record in follows:
+        record.delete()
     return redirect(reverse('posts:profile', args=[username]))
